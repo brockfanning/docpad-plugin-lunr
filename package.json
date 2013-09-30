@@ -1,0 +1,5 @@
+{
+    "version": "2.0.0",
+    "keywords": ["docpad","docpad-plugin","search","lunr","facets"],
+    "main": "./src/lunr.plugin.coffee"
+}
