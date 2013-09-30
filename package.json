@@ -1,5 +1,53 @@
 {
-    "version": "2.0.0",
-    "keywords": ["docpad","docpad-plugin","search","lunr","facets"],
-    "main": "./src/lunr.plugin.coffee"
+  "name": "docpad-plugin-lunr",
+  "homepage": "GITHUB",
+  "version": "2.0.0",
+  "description": "Adds support for client-side search with Lunr, full-text and faceted.",
+  "keywords": [
+    "docpad",
+    "docpad-plugin",
+    "search",
+    "lunr",
+    "faceted search",
+    "client-side"
+  ],
+  "author": {
+    "name": "Brock Fanning",
+    "email": "brockfanning@gmail.com",
+    "url": "http://brockfanning.com"
+  },
+  "maintainers": [
+    {
+      "name": "Brock Fanning",
+      "email": "brockfanning@gmail.com",
+      "url": "http://brockfanning.com"
+    }
+  ],
+  "contributors": [
+    {
+      "name": "Brock Fanning",
+      "email": "brockfanning@gmail.com",
+      "url": "http://brockfanning.com"
+    }
+  ],
+  "bugs": {
+    "url": "GITHUB"
+  },
+  "repository": {
+    "type": "git",
+    "url": "GITHUB"
+  },
+  "engines": {
+    "node": ">=0.4",
+    "docpad": "6.x"
+  },
+  "dependencies": {
+    "lunr": "~0.4.1",
+    "eco": "~1.1.0-rc-3"
+  },
+  "devDependencies": {
+    "coffee-script": "~1.6.2",
+    "docpad": ">=6.37 <7"
+  },
+  "main": "./src/lunr.plugin.coffee"
 }
