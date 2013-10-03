@@ -46,6 +46,25 @@ module.exports = {
     this.idx.ref('cid');
     // prep object for storing all the content of the indexed items
     this.content = {};
+    // make sure that there are no facet fields that are not present in
+    // the content fields (since facet functionality is currently a 
+    // "poor-man's" version that happens outside of Lunr)
+    if (typeof this.config.facetFields !== 'undefined') {
+      for (var i in this.config.facetFields) {
+        var facetInContent = false;
+        var facetField = this.config.facetFields[i].name;
+        for (var j in this.config.contentFields) {
+          contentField = this.config.contentFields[j].name;
+          if (contentField == facetField) {
+            facetInContent = true;
+            break;
+          }
+        }
+        if (!facetInContent) {
+          this.config.contentFields.push({ name: facetField });
+        }
+      }
+    }
   },
   /*
    * This indexes one item and gathers its content
@@ -126,8 +145,8 @@ module.exports = {
 
     // next copy the included faceted search example implementation
     var clientFiles = {
-      'lunrdoc-client.css': __dirname + '/client/',
-      'lunrdoc-client.js': __dirname + '/client/',
+      'lunr-client.css': __dirname + '/client/',
+      'lunr-client.js': __dirname + '/client/',
       'lunr.min.js': __dirname + '/../node_modules/lunr/'
     };
     var destDir = this.docpad.config.rootPath + '/' + this.config.clientFiles + '/';
