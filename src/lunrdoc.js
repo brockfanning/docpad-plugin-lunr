@@ -17,11 +17,12 @@ module.exports = {
         { name: 'title' },
         { name: 'url' }
       ],
-      clientFiles: 'out/lunr',
+      clientFiles: 'lunr',
       resultsTemplate: function(context) {
         var post = context.post;
         return '<div><a href="' + post.url + '">' + post.title + '</a></div>';
-      }
+      },
+      noResultsMessage: 'Sorry, there are no results for that search.'
     };
     // use defaults if necessary for required items
     for (var prop in defaults) {
@@ -99,7 +100,7 @@ module.exports = {
    * (including poor-man's facets) which you can ignore if not needed.
    */
   save: function() {
-    var location = this.docpad.config.rootPath + '/' + this.config.clientFiles;
+    var location = this.docpad.config.outPath + '/' + this.config.clientFiles;
     try {
       fs.mkdirSync(location);
     } catch (err) {
@@ -109,15 +110,12 @@ module.exports = {
     // start the file with an object for namespacing purposes
     fs.writeSync(file, 'var lunrdoc = lunrdoc || {};');
     // append the json for the search index
-    var indexJson = JSON.stringify(this.idx.toJSON());
-    fs.writeSync(file, 'lunrdoc.indexJson=' + indexJson + ';');
+    fs.writeSync(file, 'lunrdoc.indexJson=' + JSON.stringify(this.idx.toJSON()) + ';');
     // append the json for the content data
-    var contentJson = JSON.stringify(this.content);
-    fs.writeSync(file, 'lunrdoc.content=' + contentJson + ';');
+    fs.writeSync(file, 'lunrdoc.content=' + JSON.stringify(this.content) + ';');
     // append, if needed, the facet data
     if (typeof this.config.facetFields !== 'undefined') {
-      var facetJson = JSON.stringify(this.config.facetFields);
-      fs.writeSync(file, 'lunrdoc.facets=' + facetJson + ';');
+      fs.writeSync(file, 'lunrdoc.facets=' + JSON.stringify(this.config.facetFields) + ';');
     }
     // append the client-side templating function for results
     var resultsTemplate = '';
@@ -140,6 +138,8 @@ module.exports = {
       resultsTemplate = resultsTemplate.replace(/(\r\n|\n|\r)/gm," ");
       fs.writeSync(file, 'lunrdoc.template = ' + resultsTemplate + ';');
     }
+    // append the "no results" message
+    fs.writeSync(file, 'lunrdoc.noResultsMessage="' + this.config.noResultsMessage + '";');
     // finished with that file
     fs.closeSync(file);
 
@@ -149,12 +149,33 @@ module.exports = {
       'lunr-client.js': __dirname + '/client/',
       'lunr.min.js': __dirname + '/../node_modules/lunr/'
     };
-    var destDir = this.docpad.config.rootPath + '/' + this.config.clientFiles + '/';
+    var destDir = this.docpad.config.outPath + '/' + this.config.clientFiles + '/';
     for (var fileName in clientFiles) {
       var destFile = fs.openSync(destDir + fileName, 'w+');
       var source = fs.readFileSync(clientFiles[fileName] + fileName, { encoding: 'utf8' });
       fs.writeSync(destFile, source);
       fs.closeSync(destFile);
     }
+  },
+  // some helper functions we'll provide to the template
+  inputForSearchPage: function(config, placeholder) {
+    placeholder = placeholder || 'Search terms';
+    var scriptElements = '';
+    var scripts = ['lunr.min.js', 'lunr-data.js', 'lunr-client.js'];
+    for (var i in scripts) {
+      scriptElements += '<script src="/' + config.clientFiles + '/' + scripts[i] + '" type="text/javascript"></script>';
+    }
+    return '<input type="text" class="search-bar" id="lunr-input" placeholder="' + placeholder + '" />' +
+      '<input type="hidden" id="lunr-hidden" />' +
+      scriptElements;
+  },
+  inputForOtherPages: function(config, placeholder, destination, submit) {
+    placeholder = placeholder || 'Search terms';
+    destination = destination || 'search.html';
+    submit = submit || 'Go';
+    return '<form method="get" action="/' + destination + '">' +
+      '<input type="text" class="search-bar" name="keys" placeholder="' + placeholder + '" />' +
+      '<input type="submit" value="' + submit + '" />' +
+      '</form>';
   }
 }
