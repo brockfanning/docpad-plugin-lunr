@@ -1,6 +1,7 @@
 #lunr-facets {
   width: 30%;
   float: left;
+  clear: left;
 }
 #lunr-results {
   width: 60%;
@@ -13,6 +14,8 @@
   font-size: 17px;
   line-height: 33px;
   width: 30%;
+  display: block;
+  float: left;
 }
 #lunr-facets .active:after {
   content: '*';

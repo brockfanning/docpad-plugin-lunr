@@ -1,22 +1,47 @@
 var lunrdoc = lunrdoc || {};
 lunrdoc.init = function(config) {
   config = config || {};
+  var errors = [];
   // make sure our index is present
   if (typeof lunrdoc.indexJson === 'undefined') {
-    console.log('The Lunr index is not available. Make sure that lunr_data.js is loaded before this script.');
-    return;
+    errors.push('Lunr: The index is not available. Make sure that lunr_data.js is loaded before this script.');
   }
   // set defaults or use custom config
   var defaults = {
-    inputContainer: 'body',
-    resultsContainer: 'body',
-    facetsContainer: 'body'
+    inputID: 'lunr-input',
+    hiddenID: 'lunr-hidden',
+    resultsID: 'lunr-results',
+    facetsID: 'lunr-facets'
   }
   for (var prop in defaults) {
     if (typeof config[prop] === 'undefined') {
       config[prop] = defaults[prop];
     }
   }
+  // make sure the required elements are there
+  lunrdoc.inputBox = document.querySelector('#' + config.inputID);
+  lunrdoc.hidden = document.querySelector('#' + config.hiddenID);
+  lunrdoc.resultsContainer = document.querySelector('#' + config.resultsID);
+  lunrdoc.facetsContainer = document.querySelector('#' + config.facetsID);
+  
+  if (!lunrdoc.inputBox) {
+    errors.push('Lunr: An input element with the id ' + config.inputID + ' must exist on the page.');
+  }
+
+  // abort if errors
+  if (errors.length > 0) {
+    for (var i in errors) {
+      console.log(errors[i]);
+    }
+    return;
+  }
+
+  if (!lunrdoc.resultsContainer) {
+    lunrdoc.resultsContainer = document.createElement('div');
+    lunrdoc.resultsContainer.id = config.resultsID;
+    lunrdoc.inputBox.parentNode.appendChild(lunrdoc.resultsContainer);
+  }
+
   // do we have facets?
   lunrdoc.useFacets = false;
   if (typeof lunrdoc.facets !== 'undefined') {
@@ -31,28 +56,43 @@ lunrdoc.init = function(config) {
     }
     lunrdoc.facets = facetsTemp;
     lunrdoc.activeFilters = {};
+    if (lunrdoc.hidden) {
+      var previousFilters = lunrdoc.hidden.value;
+      if (previousFilters) {
+        lunrdoc.activeFilters = JSON.parse(previousFilters);
+      }
+    }
   }
+
+  if (lunrdoc.useFacets && !lunrdoc.facetsContainer) {
+    lunrdoc.facetsContainer = document.createElement('div');
+    lunrdoc.facetsContainer.id = config.facetsID;
+    lunrdoc.inputBox.parentNode.appendChild(lunrdoc.facetsContainer);
+  }
+
   // load the index into memory
   lunrdoc.idx = lunr.Index.load(lunrdoc.indexJson);
-  // create the elements
-  lunrdoc.inputBox = document.createElement('input');
-  lunrdoc.inputBox.id = 'lunr-input';
-  lunrdoc.inputBox.placeholder = 'type words here';
-  document.querySelector(config.inputContainer).appendChild(lunrdoc.inputBox);
-  lunrdoc.resultsContainer = document.createElement('div');
-  lunrdoc.resultsContainer.id = 'lunr-results';
-  document.querySelector(config.resultsContainer).appendChild(lunrdoc.resultsContainer);
-  if (lunrdoc.useFacets) {
-    lunrdoc.facetsContainer = document.createElement('div');
-    lunrdoc.facetsContainer.id = 'lunr-facets';
-    document.querySelector(config.facetsContainer).appendChild(lunrdoc.facetsContainer);
-  }
   // add the behavior
   lunrdoc.inputBox.onkeyup = lunrdoc.doSearch;
   lunrdoc.inputBox.focus();
+  // do a search now, for when users clicked 'Back' to get here
+  lunrdoc.doSearch();
 };
 lunrdoc.printFacets = function() {
+  // clear existing facets
   lunrdoc.facetsContainer.innerHTML = '';
+  // make sure that active filters show up, even if they wouldn't be
+  // in the search results
+  for (var activeFacet in lunrdoc.activeFilters) {
+    if (typeof lunrdoc.currentFacets[activeFacet] === 'undefined') {
+      lunrdoc.currentFacets[activeFacet] = {};
+    }
+    for (var activeFilter in lunrdoc.activeFilters[activeFacet]) {
+      if (typeof lunrdoc.currentFacets[activeFacet][activeFilter] === 'undefined') {
+        lunrdoc.currentFacets[activeFacet][activeFilter] = 0;
+      }
+    }
+  }
   for (var facet in lunrdoc.currentFacets) {
     var facetGroup = document.createElement('div');
     var facetTitle = document.createElement('h3');
@@ -161,7 +201,10 @@ lunrdoc.doSearch = function() {
       }
     }
     if (lunrdoc.useFacets) {
+      lunrdoc.hidden.value = JSON.stringify(lunrdoc.activeFilters);
       lunrdoc.printFacets();
     }
   }
 };
+
+document.body.onLoad = lunrdoc.init();
