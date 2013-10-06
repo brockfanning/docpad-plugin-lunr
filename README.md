@@ -29,26 +29,26 @@ On your other pages, like in a layout, eg. `default.html.eco`:
 To control the fields that get indexed and their "boost" levels (ie, relevance), add to the lunr configuration in `docpad.coffee`:
 ```coffee
 indexFields: [
-  name: "body", boost: 1
-  name: "title", boost: 10
-  name: "tags", boost: 100
+  {name: "body", boost: 1}
+  {name: "title", boost: 10}
+  {name: "tags", boost: 100}
 ]
 ```
 
 To control the fields that are available in search results, add to the lunr configuration in `docpad.coffee`:
 ```coffee
 contentFields: [
-  name: "title"
-  name: "url"
-  name: "date"
+  {name: "title"}
+  {name: "url"}
+  {name: "date"}
 ]
 ```
 
 For faceted search, add to the lunr configuration in `docpad.coffee`:
 ```coffee
 facetFields: [
-  name: "tags", label: "Filter by tag"
-  name: "type", label: "Filter by type"
+  {name: "tags", label: "Filter by tag"}
+  {name: "type", label: "Filter by type"}
 ]
 ```
 (Note: the faceted search is not part of Lunr, just my own poor-man's version)

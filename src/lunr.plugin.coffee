@@ -8,18 +8,18 @@ module.exports = (BasePlugin) ->
     name: 'lunr'
     # Provide some helper functions
     extendTemplateData: ({templateData}) ->
-      {config, docpad} = @
-      lunrdoc.init(config, docpad)
+      lunrdoc.init(@docpad)
       # helper functions for printing input boxes
-      templateData.getLunrSearchPage = (placeholder) -> 
-        return lunrdoc.inputForSearchPage(config, placeholder)
-      templateData.getLunrSearchForm = (placeholder, action, submit) ->
-        return lunrdoc.inputForOtherPages(config, placeholder, action, submit)
+      templateData.getLunrSearchPage = (index, placeholder) -> 
+        return lunrdoc.getLunrSearchPage(index, placeholder)
+      templateData.getLunrSearchBlock = (searchPage, placeholder, submit) ->
+        return lunrdoc.getLunrSearchBlock(searchPage, placeholder, submit)
 
     # hook into the writeAfter event for generating the index/files
     writeAfter: ->
-      indexCollection = docpad.getCollection(@config.collection)
-      if indexCollection
-        indexCollection.forEach (document) ->
-          lunrdoc.index(document)
-        lunrdoc.save()
+      for indexName, index of @config.indexes
+        indexCollection = @docpad.getCollection(index.collection)
+        if indexCollection
+          indexCollection.forEach (document) ->
+            lunrdoc.index(indexName, document)
+      lunrdoc.save()
