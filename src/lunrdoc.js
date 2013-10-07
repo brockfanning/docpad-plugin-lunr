@@ -50,11 +50,11 @@ module.exports = {
         }
       }
     }
+    // we now have no use for the "default" index so delete it
+    delete config.indexes.default;
+
     // give warning message if any collections are missing
     for (var index in config.indexes) {
-      if (index == 'default') {
-        continue;
-      }
       if (typeof config.indexes[index].collection === 'undefined') {
         console.log('LUNR: The "' + index + '" index will be ignored because a collection is not specified.');
       }
@@ -64,16 +64,12 @@ module.exports = {
     try {
       fs.mkdirSync(config.baseLocation);
     } catch (err) {
-      //console.log(err);
       // assume it's already there
     }  
     // save some more values for later
     config.rootPath = docpad.config.rootPath;
     // now we loop through all the indexes
     for (var index in config.indexes) {
-      if (index == 'default') {
-        continue;
-      }
       // make sure its directory exists
       config.indexes[index].indexDir = index.replace(/[^a-z0-9]/gi, '_').toLowerCase();
       config.indexes[index].indexLocation = config.baseLocation + 
@@ -81,13 +77,19 @@ module.exports = {
       try {
         fs.mkdirSync(config.indexes[index].indexLocation);
       } catch (err) {
-        //console.log(err);
         // assume it's already there
       }
       // create a Lunr index
       var idx = new lunr.Index;
       // add Lunr's stopword filter and stemmer
-      idx.pipeline.add(lunr.stopWordFilter, lunr.stemmer);
+      var stopWordFilter = lunr.stopWordFilter;
+      // add any stopwords
+      if (typeof config.indexes[index].stopWords !== 'undefined') {
+        for (var i in config.indexes[index].stopWords) {
+          stopWordFilter.stopWords.add(config.indexes[index].stopWords[i]);
+        }
+      }
+      idx.pipeline.add(stopWordFilter, lunr.stemmer);
       // set up the fields for the index
       for (var i in config.indexes[index].indexFields) {
         var boost = config.indexes[index].indexFields[i].boost || 1;
@@ -120,16 +122,12 @@ module.exports = {
         }
       }
     }
-    // finally save all the initializations we just did
     this.config = config;
   },
   /*
    * This indexes one item and gathers its content
    */
   index: function(index, model) {
-    if (index == 'default') {
-      return;
-    }
     var itemToIndex = {};
     // index all available fields for the item
     for (var i in this.config.indexes[index].indexFields) {
@@ -160,9 +158,6 @@ module.exports = {
    */
   save: function() {
     for (var index in this.config.indexes) {
-      if (index == 'default') {
-        continue;
-      }
       var location = this.config.indexes[index].indexLocation;
       var file = fs.openSync(location + '/lunr-data.js', 'w+');
       // start the file with an object for namespacing purposes

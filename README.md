@@ -11,22 +11,24 @@ Configure a collection to index in your `docpad.coffee`:
 ```coffee
 plugins:
   lunr:
-    collection: 'posts'
+    indexes:
+      myIndex:
+        collection: 'myCollection'
 ```
 
-On your search page, eg `search.html.eco`:
+Make your search page itself, eg `my-search-page.html.eco`:
 ```eco
-<%- @getLunrSearchPage() %>
+<%- @getLunrSearchPage('myIndex') %>
 ```
 
-On your other pages, like in a layout, eg. `default.html.eco`:
+Make a search form on other pages that redirects users to your search page above, like in a layout, eg. `default.html.eco`:
 ```eco
-<%- @getLunrSearchForm() %>
+<%- @getLunrSearchBlock('my-search-page.html') %>
 ```
 
 ## Customization
 
-To control the fields that get indexed and their "boost" levels (ie, relevance), add to the lunr configuration in `docpad.coffee`:
+To control the fields that get indexed and their "boost" levels (ie, relevance), add to the index's configuration in `docpad.coffee`:
 ```coffee
 indexFields: [
   {name: "body", boost: 1}
@@ -77,13 +79,18 @@ resultsTemplate: (context) ->
   """
 ```
 
+To add your own "stopwords" to prevent certain words from being indexed, add to the index's configuration in `docpad.coffee`
+```coffee
+stopWords: ['an','array','of','words']
+```
+
 ## Advanced usage
 
 To get more granular here are the basics:
 
 ```html
-<script src="/lunr/lunr.min.js" type="text/javascript"></script>
-<script src="/lunr/lunr-data.js" type="text/javascript"></script>
+<script src="/lunr/myIndex/lunr.min.js" type="text/javascript"></script>
+<script src="/lunr/myIndex/lunr-data.js" type="text/javascript"></script>
 <script type="text/javascript">
   lunrdoc.idx = lunr.Index.load(lunrdoc.indexJson);
   var keywords = "hopefully some of these words appear in your docpad site";
@@ -102,3 +109,4 @@ To get more granular here are the basics:
 * Currently this plugin is geared towards static sites, and brings everything client-side. Need to allow for dynamic sites to take advantage of having a back-end - ie, keep the index, searching, and content on the back-end.
 * Hopefully if faceted search is added to Lunr proper, re-implement using that
 * Failing that, add more facet types, like dates and numeric ranges
+* Allow for custom pipeline functions
