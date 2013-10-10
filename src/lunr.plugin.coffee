@@ -17,9 +17,10 @@ module.exports = (BasePlugin) ->
 
     # hook into the writeAfter event for generating the index/files
     writeAfter: ->
-      for indexName, index of @config.indexes
-        indexCollection = @docpad.getCollection(index.collection)
-        if indexCollection
-          indexCollection.forEach (document) ->
-            lunrdoc.index(indexName, document)
-      lunrdoc.save()
+      if (@config.indexes)
+        for indexName, index of @config.indexes
+          indexCollection = @docpad.getCollection(index.collection)
+          if indexCollection
+            indexCollection.forEach (document) ->
+              lunrdoc.index(indexName, document)
+        lunrdoc.save()

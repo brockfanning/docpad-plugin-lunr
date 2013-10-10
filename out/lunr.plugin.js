@@ -32,17 +32,19 @@
 
       LunrPlugin.prototype.writeAfter = function() {
         var index, indexCollection, indexName, _ref;
-        _ref = this.config.indexes;
-        for (indexName in _ref) {
-          index = _ref[indexName];
-          indexCollection = this.docpad.getCollection(index.collection);
-          if (indexCollection) {
-            indexCollection.forEach(function(document) {
-              return lunrdoc.index(indexName, document);
-            });
+        if (this.config.indexes) {
+          _ref = this.config.indexes;
+          for (indexName in _ref) {
+            index = _ref[indexName];
+            indexCollection = this.docpad.getCollection(index.collection);
+            if (indexCollection) {
+              indexCollection.forEach(function(document) {
+                return lunrdoc.index(indexName, document);
+              });
+            }
           }
+          return lunrdoc.save();
         }
-        return lunrdoc.save();
       };
 
       return LunrPlugin;
