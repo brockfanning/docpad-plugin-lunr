@@ -1,6 +1,6 @@
 {
   "name": "docpad-plugin-lunr",
-  "homepage": "GITHUB",
+  "homepage": "https://github.com/brockfanning/docpad-plugin-lunr",
   "version": "2.0.0",
   "description": "Adds support for client-side search with Lunr, full-text and faceted.",
   "keywords": [
@@ -31,11 +31,11 @@
     }
   ],
   "bugs": {
-    "url": "GITHUB"
+    "url": "https://github.com/brockfanning/docpad-plugin-lunr/issues"
   },
   "repository": {
     "type": "git",
-    "url": "GITHUB"
+    "url": "https://github.com/brockfanning/docpad-plugin-lunr.git"
   },
   "engines": {
     "node": ">=0.4",
@@ -49,5 +49,5 @@
     "coffee-script": "~1.6.2",
     "docpad": ">=6.37 <7"
   },
-  "main": "./src/lunr.plugin.coffee"
+  "main": "./out/lunr.plugin.js"
 }

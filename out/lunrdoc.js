@@ -22,7 +22,6 @@ module.exports = {
         { name: 'title' },
         { name: 'url' }
       ],
-      clientFiles: 'lunr',
       resultsTemplate: function(context) {
         var post = context.post;
         return '<div><a href="' + post.url + '">' + post.title + '</a></div>';
@@ -236,23 +235,5 @@ module.exports = {
       '<input type="text" class="search-bar" name="keys" placeholder="' + placeholder + '" />' +
       '<input type="submit" value="' + submit + '" />' +
       '</form>';
-  },
-  getTestCollection: function() {
-    var testSize = 300;
-    var dimsum = require('dimsum');
-    var collection = [];
-    for (var i = 0; i < testSize; i++) {
-      var item = {};
-      item.cid = i;
-      item.attributes = {};
-      item.attributes.url = 'http://www.google.com';
-      item.attributes.humanDate = 'October 5, 2013';
-      item.attributes.title = dimsum.sentence(1);
-      item.attributes.teaser = dimsum.sentence(2);
-      item.attributes.body = dimsum.sentence(100);
-      item.attributes.tags = dimsum.sentence(1).split(' ');
-      collection.push(item);
-    }
-    return collection;
   }
 }
