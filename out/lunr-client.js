@@ -250,6 +250,8 @@ lunrdoc.doSearch = function() {
 };
 
 // run the init function! (this needs to also run when user clicks "back")
-$(document).ready(function() {
+lunrdoc.ready = function(event) {
   lunrdoc.init();
-});
+  window.removeEventListener('DOMContentLoaded', lunrdoc.ready);
+}
+window.addEventListener('DOMContentLoaded', lunrdoc.ready);
