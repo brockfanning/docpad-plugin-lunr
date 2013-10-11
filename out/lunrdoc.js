@@ -198,7 +198,7 @@ module.exports = {
     }
     // next copy the client files
     var clientFiles = {
-      'lunr-ui.js': __dirname + '/',
+      'lunr-ui.min.js': __dirname + '/',
       'lunr.min.js': __dirname + '/../node_modules/lunr/'
     };
     var destDir = location + '/';
