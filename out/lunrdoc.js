@@ -218,7 +218,7 @@ module.exports = {
     placeholder = placeholder || 'Search terms';
     var scriptElements = '';
     var dataFilename = this.config.indexes[index].indexFilename;
-    var scripts = ['lunr.min.js', dataFilename, 'lunr-ui.js'];
+    var scripts = ['lunr.min.js', dataFilename, 'lunr-ui.min.js'];
     for (var i in scripts) {
       scriptElements += '<script src="/lunr/' + scripts[i] + 
         '" type="text/javascript"></script>';
