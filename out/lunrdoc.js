@@ -58,26 +58,15 @@ module.exports = {
         console.log('LUNR: The "' + index + '" index will be ignored because a collection is not specified.');
       }
     }
-    // save the base directory location and make sure it exists
-    config.baseLocation = docpad.config.outPath + '/lunr';
-    try {
-      fs.mkdirSync(config.baseLocation);
-    } catch (err) {
-      // assume it's already there
-    }  
+    // save the base directory location
+    config.baseLocation = docpad.config.outPath + '/lunr'; 
     // save some more values for later
     config.rootPath = docpad.config.rootPath;
     // now we loop through all the indexes
     for (var index in config.indexes) {
       // make sure its directory exists
-      config.indexes[index].indexDir = index.replace(/[^a-z0-9]/gi, '_').toLowerCase();
-      config.indexes[index].indexLocation = config.baseLocation + 
-        '/' + config.indexes[index].indexDir;
-      try {
-        fs.mkdirSync(config.indexes[index].indexLocation);
-      } catch (err) {
-        // assume it's already there
-      }
+      config.indexes[index].indexFilename = 'lunr-data-' + 
+        index.replace(/[^a-z0-9]/gi, '_').toLowerCase() + '.js';
       // create a Lunr index
       var idx = new lunr.Index;
       // add Lunr's stopword filter and stemmer
@@ -131,19 +120,24 @@ module.exports = {
     // index all available fields for the item
     for (var i in this.config.indexes[index].indexFields) {
       var name = this.config.indexes[index].indexFields[i].name;
-      if (typeof model.attributes[name] !== 'undefined') {
+      if (typeof model.attributes[name] !== 'undefined' &&
+          model.attributes[name] !== null) {
         itemToIndex[name] = model.attributes[name];
+      } else {
+        itemToIndex[name] = '';
       }
     }
     // set the unique identifier
     itemToIndex.cid = model.cid;
+    // index the item
     this.config.indexes[index].idx.add(itemToIndex);
 
     var itemForContent = {};
     // save all available content for the item
     for (var i in this.config.indexes[index].contentFields) {
       var name = this.config.indexes[index].contentFields[i].name;
-      if (typeof model.attributes[name] !== 'undefined') {
+      if (typeof model.attributes[name] !== 'undefined' &&
+          model.attributes[name] !== null) {
         itemForContent[name] = model.attributes[name];
       }
     }
@@ -156,9 +150,16 @@ module.exports = {
    * (including poor-man's facets) which you can ignore if not needed.
    */
   save: function() {
+    var location = this.config.baseLocation;
+    // make sure it exists
+    try {
+      fs.mkdirSync(location);
+    } catch (err) {
+      // assume it's already there
+    } 
     for (var index in this.config.indexes) {
-      var location = this.config.indexes[index].indexLocation;
-      var file = fs.openSync(location + '/lunr-data.js', 'w+');
+      var filename = this.config.indexes[index].indexFilename;
+      var file = fs.openSync(location + '/' + filename, 'w+');
       // start the file with an object for namespacing purposes
       fs.writeSync(file, 'var lunrdoc = lunrdoc || {};');
       // append the json for the search index
@@ -194,19 +195,18 @@ module.exports = {
       fs.writeSync(file, 'lunrdoc.noResultsMessage="' + this.config.indexes[index].noResultsMessage + '";');
       // finished with that file
       fs.closeSync(file);
-
-      // next copy the included faceted search example implementation
-      var clientFiles = {
-        'lunr-client.js': __dirname + '/',
-        'lunr.min.js': __dirname + '/../node_modules/lunr/'
-      };
-      var destDir = location + '/';
-      for (var fileName in clientFiles) {
-        var destFile = fs.openSync(destDir + fileName, 'w+');
-        var source = fs.readFileSync(clientFiles[fileName] + fileName, { encoding: 'utf8' });
-        fs.writeSync(destFile, source);
-        fs.closeSync(destFile);
-      }
+    }
+    // next copy the client files
+    var clientFiles = {
+      'lunr-ui.js': __dirname + '/',
+      'lunr.min.js': __dirname + '/../node_modules/lunr/'
+    };
+    var destDir = location + '/';
+    for (var filename in clientFiles) {
+      var destFile = fs.openSync(destDir + filename, 'w+');
+      var source = fs.readFileSync(clientFiles[filename] + filename, { encoding: 'utf8' });
+      fs.writeSync(destFile, source);
+      fs.closeSync(destFile);
     }
   },
   // some helper functions we'll provide to the template
@@ -217,10 +217,10 @@ module.exports = {
     }
     placeholder = placeholder || 'Search terms';
     var scriptElements = '';
-    var scripts = ['lunr.min.js', 'lunr-data.js', 'lunr-client.js'];
+    var dataFilename = this.config.indexes[index].indexFilename;
+    var scripts = ['lunr.min.js', dataFilename, 'lunr-ui.js'];
     for (var i in scripts) {
-      scriptElements += '<script src="/lunr/' + 
-        this.config.indexes[index].indexDir + '/' + scripts[i] + 
+      scriptElements += '<script src="/lunr/' + scripts[i] + 
         '" type="text/javascript"></script>';
     }
     return '<input type="text" class="search-bar" id="lunr-input" placeholder="' + placeholder + '" />' +

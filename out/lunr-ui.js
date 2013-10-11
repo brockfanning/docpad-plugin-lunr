@@ -101,6 +101,35 @@ lunrdoc.init = function(config) {
   lunrdoc.doSearch();
 };
 
+lunrdoc.toggleFilter = function(facet, filter, item) {
+  if (typeof lunrdoc.activeFilters[facet] !== 'undefined' && typeof lunrdoc.activeFilters[facet][filter] !== 'undefined') {
+    // the facet is active, so remove it
+    delete lunrdoc.activeFilters[facet][filter];
+    // we have to go to some trouble to check for when the facet is empty,
+    // because if we leave an empty facet here, it causes problems
+    var facetStillHasFilters = false;
+    for (var prop in lunrdoc.activeFilters[facet]) {
+      facetStillHasFilters = true;
+      break;
+    }
+    if (!facetStillHasFilters) {
+      delete lunrdoc.activeFilters[facet];
+    }
+    // not really necessary, but change the class for UI-responsiveness
+    item.className = '';
+  } else {
+    // the facet/filter is not active, so add it
+    if (typeof lunrdoc.activeFilters[facet] === 'undefined') {
+      lunrdoc.activeFilters[facet] = {};
+    }
+    if (typeof lunrdoc.activeFilters[facet][filter] === 'undefined') {
+      lunrdoc.activeFilters[facet][filter] = {};
+    }
+    // not really necessary, but change the class for UI-responsiveness
+    item.className = 'active';
+  }
+};
+
 lunrdoc.printFacets = function() {
   // clear existing facets
   lunrdoc.facetsContainer.innerHTML = '';
@@ -131,37 +160,36 @@ lunrdoc.printFacets = function() {
     facetTitle.appendChild(facetTitleValue);
     // the filters of each facet will be inside an unordered list
     var facetList = document.createElement('ul');
+    // take advantage of the Lunr library's cool SortedSet class to keep a sorted
+    // list of the facet's filters
+    var sortedFilters = new lunr.SortedSet;
+    // meanwhile store the actual DOM elements in a keyed object to grab them later
+    var unsortedFilters = {};
     for (var filter in lunrdoc.currentFacets[facet]) {
       var filterValue = document.createTextNode(filter + 
         ' (' + lunrdoc.currentFacets[facet][filter] + ')');
       var filterItem = document.createElement('li');
       filterItem.appendChild(filterValue);
-      // make sure this is not an active filter
+      // see if this should be an active filter
       if (typeof lunrdoc.activeFilters[facet] !== 'undefined' &&
           typeof lunrdoc.activeFilters[facet][filter] !== 'undefined') {
         filterItem.className = 'active';
       }
+      // add the click behavior, all closure-ified
       filterItem.onclick = function(cfacet, cfilter) { 
         return function() {
-          if (typeof lunrdoc.activeFilters[cfacet] !== 'undefined' &&
-              typeof lunrdoc.activeFilters[cfacet][cfilter] !== 'undefined') {
-            // the facet/filter is active, so remove it
-            delete lunrdoc.activeFilters[cfacet][cfilter];
-            lunrdoc.className = '';
-          } else {
-            // the facet/filter is not active, so add it
-            if (typeof lunrdoc.activeFilters[cfacet] === 'undefined') {
-              lunrdoc.activeFilters[cfacet] = {};
-            }
-            if (typeof lunrdoc.activeFilters[cfacet][cfilter] === 'undefined') {
-              lunrdoc.activeFilters[cfacet][cfilter] = {};
-            }
-            lunrdoc.className = 'active';
-          }
+          lunrdoc.toggleFilter(cfacet, cfilter, this);
           lunrdoc.doSearch();
         };
       }(facet, filter);
-      facetList.appendChild(filterItem);
+      // now add the filter to our objects for sorting purposes
+      unsortedFilters[filter] = filterItem;
+      sortedFilters.add(filter);
+    }
+    // populate the list now
+    var sortedFiltersArr = sortedFilters.toArray();
+    for (var i in sortedFiltersArr) {
+      facetList.appendChild(unsortedFilters[sortedFiltersArr[i]]);
     }
     facetGroup.appendChild(facetTitle);
     facetGroup.appendChild(facetList);
