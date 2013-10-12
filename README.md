@@ -1,10 +1,14 @@
 # DocPad Lunr Plugin
-Generates a Lunr search index from your Docpad collection, and provides helpers for a client-side full-text and faceted search.
+Generates [Lunr](http://lunrjs.com) search indexes from your Docpad collections, and provides helpers for a client-side full-text and faceted search.
 
 ## Getting Started
 
 ```
 npm install --save docpad-plugin-lunr
+```
+or
+```
+docpad install lunr
 ```
 
 Configure a collection to index in your `docpad.coffee`:
