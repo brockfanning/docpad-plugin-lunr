@@ -122,7 +122,12 @@ module.exports = {
       var name = this.config.indexes[index].indexFields[i].name;
       if (typeof model.attributes[name] !== 'undefined' &&
           model.attributes[name] !== null) {
-        itemToIndex[name] = model.attributes[name];
+        var value = model.attributes[name];
+        // first convert arrays to strings (we assume they are arrays of strings)
+        if (Array.isArray(value)) {
+          value = value.join(' ');
+        }
+        itemToIndex[name] = value;
       } else {
         itemToIndex[name] = '';
       }

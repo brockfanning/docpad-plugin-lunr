@@ -80,16 +80,19 @@ lunrdoc.init = function(config) {
     lunrdoc.inputBox.parentNode.appendChild(lunrdoc.resultsContainer);
   }
 
-  // check for keywords passed in through the URL
-  var getParameterByName = function(name) {
-      name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
-      var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
-          results = regex.exec(location.search);
-      return results == null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
-  }
-  var urlQuery = getParameterByName('keys');
-  if (urlQuery) {
-    lunrdoc.inputBox.value = urlQuery;
+  // check for keywords passed in through the URL, but only if the 
+  // input box has no text already input in it (ie, if the user clicked back)
+  if (!lunrdoc.inputBox.value) {
+    var getParameterByName = function(name) {
+        name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+        var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+            results = regex.exec(location.search);
+        return results == null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+    }
+    var urlQuery = getParameterByName('keys');
+    if (urlQuery) {
+      lunrdoc.inputBox.value = urlQuery;
+    }
   }
 
   // load the index into memory
