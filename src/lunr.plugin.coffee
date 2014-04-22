@@ -28,7 +28,9 @@ module.exports = (BasePlugin) ->
       if (@config.indexes)
         for indexName, index of @config.indexes
           if Array.isArray(index.collection)
-            index.collection.forEach _indexDocument(collection)
+            index.collection.forEach (collection) ->
+              _indexDocument collection
+              return
           else
             _indexDocument(index.collection)
         lunrdoc.save()

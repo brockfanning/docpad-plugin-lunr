@@ -45,7 +45,9 @@
           for (indexName in _ref) {
             index = _ref[indexName];
             if (Array.isArray(index.collection)) {
-              index.collection.forEach(_indexDocument(collection));
+              index.collection.forEach(function(collection) {
+                _indexDocument(collection);
+              });
             } else {
               _indexDocument(index.collection);
             }

@@ -19,6 +19,7 @@ plugins:
       myIndex:
         collection: 'myCollection'
 ```
+To create an index which includes multiple collections you can pass an array of collection names.
 
 Make your search page itself, eg `my-search-page.html.eco`:
 ```eco
