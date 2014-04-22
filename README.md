@@ -19,7 +19,14 @@ plugins:
       myIndex:
         collection: 'myCollection'
 ```
-To create an index which includes multiple collections you can pass an array of collection names.
+To create an index which includes multiple collections you can pass an array of collection names:
+```coffee
+plugins:
+  lunr:
+    indexes:
+      myIndex:
+        collection: ['firstCollection','secondCollection']
+```
 
 Make your search page itself, eg `my-search-page.html.eco`:
 ```eco
