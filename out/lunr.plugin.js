@@ -29,11 +29,11 @@
         };
       };
 
-      LunrPlugin.prototype.writeAfter = function() {
+      LunrPlugin.prototype.writeAfter = function(opts) {
         var index, indexName, _indexDocument, _ref;
-        _indexDocument = function(collection) {
+        _indexDocument = function(docpad, collection) {
           var indexCollection;
-          indexCollection = this.docpad.getCollection(collection);
+          indexCollection = docpad.getCollection(collection);
           if (indexCollection) {
             indexCollection.forEach(function(document) {
               return lunrdoc.index(indexName, document);
@@ -46,10 +46,10 @@
             index = _ref[indexName];
             if (Array.isArray(index.collection)) {
               index.collection.forEach(function(collection) {
-                _indexDocument(collection);
+                _indexDocument(this.docpad, collection);
               });
             } else {
-              _indexDocument(index.collection);
+              _indexDocument(this.docpad, index.collection);
             }
           }
           return lunrdoc.save();
