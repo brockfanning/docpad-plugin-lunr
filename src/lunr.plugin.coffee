@@ -16,9 +16,9 @@ module.exports = (BasePlugin) ->
         return lunrdoc.getLunrSearchBlock(searchPage, placeholder, submit)
 
     # hook into the writeAfter event for generating the index/files
-    writeAfter: ->
-      _indexDocument = (collection) ->
-        indexCollection = @docpad.getCollection(collection)
+    writeAfter: (opts) ->
+      _indexDocument = (docpad, collection) ->
+        indexCollection = docpad.getCollection(collection)
         if indexCollection
           indexCollection.forEach (document) ->
             lunrdoc.index indexName, document
@@ -29,8 +29,8 @@ module.exports = (BasePlugin) ->
         for indexName, index of @config.indexes
           if Array.isArray(index.collection)
             index.collection.forEach (collection) ->
-              _indexDocument collection
+              _indexDocument @docpad, collection
               return
           else
-            _indexDocument(index.collection)
+            _indexDocument(@docpad, index.collection)
         lunrdoc.save()
