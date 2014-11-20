@@ -1,7 +1,7 @@
 {
   "name": "docpad-plugin-lunr",
   "homepage": "https://github.com/brockfanning/docpad-plugin-lunr",
-  "version": "2.0.8",
+  "version": "2.0.9",
   "description": "Adds support for client-side search with Lunr, full-text and faceted.",
   "license": "MIT",
   "keywords": [
