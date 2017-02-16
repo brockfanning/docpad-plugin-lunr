@@ -59,13 +59,13 @@ module.exports = {
       }
     }
     // save the base directory location
-    config.baseLocation = docpad.config.outPath + '/lunr'; 
+    config.baseLocation = docpad.config.outPath + '/lunr';
     // save some more values for later
     config.rootPath = docpad.config.rootPath;
     // now we loop through all the indexes
     for (var index in config.indexes) {
       // make sure its directory exists
-      config.indexes[index].indexFilename = 'lunr-data-' + 
+      config.indexes[index].indexFilename = 'lunr-data-' +
         index.replace(/[^a-z0-9]/gi, '_').toLowerCase() + '.js';
       // create a Lunr index
       var idx = new lunr.Index;
@@ -91,7 +91,7 @@ module.exports = {
       // prep object for storing all the content of the indexed items
       config.indexes[index].content = {};
       // make sure that there are no facet fields that are not present in
-      // the content fields (since facet functionality is currently a 
+      // the content fields (since facet functionality is currently a
       // "poor-man's" version that happens outside of Lunr)
       if (typeof config.indexes[index].facetFields !== 'undefined') {
         for (var i in config.indexes[index].facetFields) {
@@ -161,7 +161,7 @@ module.exports = {
       fs.mkdirSync(location);
     } catch (err) {
       // assume it's already there
-    } 
+    }
     for (var index in this.config.indexes) {
       var filename = this.config.indexes[index].indexFilename;
       var file = fs.openSync(location + '/' + filename, 'w+');
@@ -204,7 +204,7 @@ module.exports = {
     // next copy the client files
     var clientFiles = {
       'lunr-ui.min.js': __dirname + '/',
-      'lunr.min.js': __dirname + '/../node_modules/lunr/'
+      'lunr.min.js': __dirname + '/../../lunr/'
     };
     var destDir = location + '/';
     for (var filename in clientFiles) {
@@ -225,7 +225,7 @@ module.exports = {
     var dataFilename = this.config.indexes[index].indexFilename;
     var scripts = ['lunr.min.js', dataFilename, 'lunr-ui.min.js'];
     for (var i in scripts) {
-      scriptElements += '<script src="/lunr/' + scripts[i] + 
+      scriptElements += '<script src="/lunr/' + scripts[i] +
         '" type="text/javascript"></script>';
     }
     return '<input type="text" class="search-bar" id="lunr-input" placeholder="' + placeholder + '" />' +
