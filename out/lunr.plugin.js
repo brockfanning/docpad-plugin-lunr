@@ -11,11 +11,12 @@
     return LunrPlugin = (function(_super) {
       __extends(LunrPlugin, _super);
 
-      function LunrPlugin() {
-        return LunrPlugin.__super__.constructor.apply(this, arguments);
-      }
-
       LunrPlugin.prototype.name = 'lunr';
+
+      function LunrPlugin(config) {
+        this.docpad = config.docpad;
+        LunrPlugin.__super__.constructor.apply(this, arguments);
+      }
 
       LunrPlugin.prototype.extendTemplateData = function(_arg) {
         var templateData;
@@ -30,10 +31,11 @@
       };
 
       LunrPlugin.prototype.writeAfter = function(opts) {
-        var index, indexName, _indexDocument, _ref;
-        _indexDocument = function(docpad, collection) {
+        var index, indexName, _docpad, _indexDocument, _ref;
+        _docpad = this.docpad;
+        _indexDocument = function(collection) {
           var indexCollection;
-          indexCollection = docpad.getCollection(collection);
+          indexCollection = _docpad.getCollection(collection);
           if (indexCollection) {
             indexCollection.forEach(function(document) {
               return lunrdoc.index(indexName, document);
@@ -46,10 +48,10 @@
             index = _ref[indexName];
             if (Array.isArray(index.collection)) {
               index.collection.forEach(function(collection) {
-                _indexDocument(this.docpad, collection);
+                _indexDocument(collection);
               });
             } else {
-              _indexDocument(this.docpad, index.collection);
+              _indexDocument(index.collection);
             }
           }
           return lunrdoc.save();

@@ -6,6 +6,12 @@ module.exports = (BasePlugin) ->
   class LunrPlugin extends BasePlugin
     # Plugin name
     name: 'lunr'
+    
+    # Receive docpad
+    constructor: (config) ->
+      @docpad = config.docpad
+      super
+    
     # Provide some helper functions
     extendTemplateData: ({templateData}) ->
       lunrdoc.init(@docpad)
@@ -19,7 +25,7 @@ module.exports = (BasePlugin) ->
     writeAfter: (opts) ->
       docpad = @docpad
       
-      _indexDocument = (docpad, collection) ->
+      _indexDocument = (collection) ->
         indexCollection = docpad.getCollection(collection)
         if indexCollection
           indexCollection.forEach (document) ->
@@ -31,8 +37,8 @@ module.exports = (BasePlugin) ->
         for indexName, index of @config.indexes
           if Array.isArray(index.collection)
             index.collection.forEach (collection) ->
-              _indexDocument docpad, collection
+              _indexDocument collection
               return
           else
-            _indexDocument(docpad, index.collection)
+            _indexDocument(index.collection)
         lunrdoc.save()
